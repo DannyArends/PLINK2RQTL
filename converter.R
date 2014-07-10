@@ -7,7 +7,7 @@
 #Set this to where YOU stored the example data
 setwd("D:/Github/PLINK2RQTL/test")
 
-convertToCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", verbose = FALSE){
+PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", verbose = FALSE){
   mapdata <- read.table(map, colClasses=c("character"))                                                             # Read the MAP data
   colnames(mapdata) <- c("Chr", "ID", "cM", "BP")
 
@@ -15,7 +15,9 @@ convertToCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr"
 
   peddata <- read.table(ped, colClasses=c("character"), na.strings=c("-9"))                                         # Read the PED data
   colnames(peddata) <- c("FID", "IID", "PID","MID", "Sex", "Pheno", SNPcolnames)
-
+  
+  peddata[peddata[,"Sex"] == 1, "Sex"] <- "m"; peddata[peddata[,"Sex"] == 2, "Sex"] <- "f"                          # R/qtl uses m and f, for males and females
+  
   genotypes <- matrix(NA, length(mapdata[,"ID"]), nrow(peddata))                                                    # Empty genotype matrix
   rownames(genotypes) <- mapdata[,"ID"]
   for(snp in mapdata[,"ID"]){
@@ -32,14 +34,31 @@ convertToCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr"
     genotypes[snp,] <- genotype
   }
 
-  outCSVR <- rbind(c("Pheno", "", "", peddata[,"Pheno"]), cbind(mapdata[,c("ID","Chr","cM")], genotypes))           # Create CSVRotated output
+  outCSVR <- rbind(c("Pheno", "", "", peddata[,"Pheno"]), 
+                   c("sex", "", "", peddata[,"Sex"]),                                                               # Add the sex phenotype
+                   cbind(mapdata[,c("ID","Chr","cM")], genotypes))                                                  # Create CSVRotated output
   write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=",")                           # Save it to a file
   require(qtl)
   return(read.cross(file=out, "csvr", genotypes=c(1,2,3)))                                                          # Load it using R/qtl read.cross
 }
 
+GENOtoCSVR <- function(genotypes = "BXD.geno", out = "cross.csvr", phenotype = NULL, sex = NULL, verbose = FALSE){
+  genodata <- read.table("BXD.geno", sep="\t", skip = 6, header=TRUE, na.strings="U", colClasses="character")
+  if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
+  if(is.null(sex)) sex <- rep("m", (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
+  outCSVR <- rbind(c("Pheno", "", "", phenotype),                                                                   # Phenotype
+                   c("sex", "", "", sex),                                                                           # Sex phenotype for the mice
+                   cbind(genodata[,c("Locus","Chr", "cM")], genodata[, 5:ncol(genodata)]))                          # Genotypes
+  write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=",")                           # Save it to a file
+  require(qtl)
+  return(read.cross(file=out, "csvr", genotypes=c("B", "H", "D")))                                                  # Load it using R/qtl read.cross  
+}
+
 library(qtl)
 
-cross <- convertToCSVR()
+cross <- PLINKtoCSVR()                                                                                              # Test the conversion from PLINK to R/qtl
 cross <- jittermap(cross)
+plot(scanone(cross))
+
+cross <- GENOtoCSVR()
 plot(scanone(cross))
