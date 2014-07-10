@@ -1,0 +1,1 @@
+Convert PLINK ped & map files into R/qtl csvr format
