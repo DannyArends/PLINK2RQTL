@@ -7,6 +7,7 @@
 #Set this to where YOU stored the example data
 setwd("D:/Github/PLINK2RQTL/test")
 
+### Convert PLINKs .ped and .map files to the R/qtl .csvr input format ###
 PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", verbose = FALSE){
   mapdata <- read.table(map, colClasses=c("character"))                                                             # Read the MAP data
   colnames(mapdata) <- c("Chr", "ID", "cM", "BP")
@@ -42,6 +43,7 @@ PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", 
   return(read.cross(file=out, "csvr", genotypes=c(1,2,3)))                                                          # Load it using R/qtl read.cross
 }
 
+### Convert GeneNetworks .geno format to the R/qtl .csvr input format ###
 GENOtoCSVR <- function(genotypes = "BXD.geno", out = "cross.csvr", phenotype = NULL, sex = NULL, verbose = FALSE){
   genodata <- read.table("BXD.geno", sep="\t", skip = 6, header=TRUE, na.strings="U", colClasses="character")
   if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
@@ -60,5 +62,6 @@ cross <- PLINKtoCSVR()                                                          
 cross <- jittermap(cross)
 plot(scanone(cross))
 
-cross <- GENOtoCSVR()
+cross <- GENOtoCSVR()                                                                                               # Test the conversion from GENENETWORK to R/qtl
+cross <- jittermap(cross)
 plot(scanone(cross))
