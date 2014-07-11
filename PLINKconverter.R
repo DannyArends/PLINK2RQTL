@@ -43,25 +43,8 @@ PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", 
   return(read.cross(file=out, "csvr", genotypes=c(1,2,3)))                                                          # Load it using R/qtl read.cross
 }
 
-### Convert GeneNetworks .geno format to the R/qtl .csvr input format ###
-GENOtoCSVR <- function(genotypes = "BXD.geno", out = "cross.csvr", phenotype = NULL, sex = NULL, verbose = FALSE){
-  genodata <- read.table("BXD.geno", sep="\t", skip = 6, header=TRUE, na.strings="U", colClasses="character")
-  if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
-  if(is.null(sex)) sex <- rep("m", (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
-  outCSVR <- rbind(c("Pheno", "", "", phenotype),                                                                   # Phenotype
-                   c("sex", "", "", sex),                                                                           # Sex phenotype for the mice
-                   cbind(genodata[,c("Locus","Chr", "cM")], genodata[, 5:ncol(genodata)]))                          # Genotypes
-  write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=",")                           # Save it to a file
-  require(qtl)
-  return(read.cross(file=out, "csvr", genotypes=c("B", "H", "D")))                                                  # Load it using R/qtl read.cross  
-}
-
 library(qtl)
 
 cross <- PLINKtoCSVR()                                                                                              # Test the conversion from PLINK to R/qtl
-cross <- jittermap(cross)
-plot(scanone(cross))
-
-cross <- GENOtoCSVR()                                                                                               # Test the conversion from GENENETWORK to R/qtl
 cross <- jittermap(cross)
 plot(scanone(cross))
