@@ -19,7 +19,7 @@ This repository holds several converters for the R/qtl R package. The converters
 [Website](http://www.rqtl.org)
 [Source](http://github.com/kbroman/qtl)
 
-- GeneNetwork - A for mapping Quantitative Trait Loci in inbred animals
+- GeneNetwork - Is a free scientific web resource used to study relationships between differences in genes, environmental factors, phenotypes, and disease risk
 [Website](http://www.genenetwork.org)
 [Source](https://github.com/genenetwork/genenetwork)
 
