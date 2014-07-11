@@ -15,7 +15,7 @@ This repository holds several converters for the R/qtl R package. The converters
 [Website](http://www.r-project.org) 
 [Source](https://github.com/SurajGupta/r-source)
 
-- R/qtl - R package for mapping Quantitative Trait Loci in inbred animals
+- R/qtl -  is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses
 [Website](http://www.rqtl.org)
 [Source](http://github.com/kbroman/qtl)
 
