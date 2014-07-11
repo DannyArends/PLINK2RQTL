@@ -1,4 +1,4 @@
-# Convert .ped & .map files to R/qtl csvr format
+# Convert PLINK .ped & .map files to R/qtl csvr format
 #
 # copyright (c) 2014-2020 - Brockmann group - HU Berlin, Danny Arends
 # last modified Juli, 2014
