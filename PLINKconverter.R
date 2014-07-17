@@ -8,7 +8,7 @@
 setwd("D:/Github/PLINK2RQTL/test")
 
 ### Convert PLINKs .ped and .map files to the R/qtl .csvr input format ###
-PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", verbose = FALSE){
+PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", missing.genotype = "0", verbose = FALSE){
   mapdata <- read.table(map, colClasses=c("character"))                                                             # Read the MAP data
   colnames(mapdata) <- c("Chr", "ID", "cM", "BP")
 
@@ -24,9 +24,12 @@ PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", 
   for(snp in mapdata[,"ID"]){
     cols <- grep(snp, colnames(peddata))                                                                            # Get the columns associated with this SNP
     snpalleles <- sort(unique(unlist(peddata[,cols])))                                                              # The SNP alleles
+    if(missing.genotype %in% snpalleles){
+      snpalleles <- snpalleles[-which(snpalleles == missing.genotype)]                                              # Missing data should not count as an allele
+    }
     if(verbose) cat("For", snp,"found", snpalleles,"\n")                                                            # Some info / debug
     genotype <- apply(peddata[,cols],1,function(x){
-      # NOTE: I do NOT handle missing genotype data (YET)
+      if(x[1] == missing.genotype) return(NA)                                                                       # Missing genotype data
       if(x[1] != x[2]) return(2)                                                                                    # Hetrozygous *H*
       if(x[1] == x[2] && x[1] == snpalleles[1]) return(1)                                                           # Homozygous Allele 1 *A*
       if(x[1] == x[2] && x[1] == snpalleles[2]) return(3)                                                           # Homozygous Allele 2 *B*
