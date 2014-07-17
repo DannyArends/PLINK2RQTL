@@ -8,17 +8,27 @@
 setwd("D:/Github/PLINK2RQTL/test")
 
 ### Convert PLINKs .ped and .map files to the R/qtl .csvr input format ###
-PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", missing.genotype = "0", verbose = FALSE){
+PLINKtoCSVR <- function(ped = "test_complete.ped", map = "test.map", out = "cross.csvr", missing.genotype = "0", 
+                        no.fid = FALSE, no.parents = FALSE, no.sex = FALSE, no.pheno = FALSE,
+                        verbose = FALSE){
   mapdata <- read.table(map, colClasses=c("character"))                                                             # Read the MAP data
   colnames(mapdata) <- c("Chr", "ID", "cM", "BP")
 
   SNPcolnames <- paste0(unlist(lapply(mapdata[,"ID"],rep,2)), c(".A",".B"))                                         # Create column names for the SNPs
 
   peddata <- read.table(ped, colClasses=c("character"), na.strings=c("-9"))                                         # Read the PED data
-  colnames(peddata) <- c("FID", "IID", "PID","MID", "Sex", "Pheno", SNPcolnames)
-  
+  columnNames <- NULL
+  columnNames <- c(columnNames, "IID")
+  if(!no.fid)     columnNames <- c(columnNames, "FID")
+  if(!no.parents) columnNames <- c(columnNames, "PID", "MID")
+  if(!no.sex)     columnNames <- c(columnNames, "Sex")
+  if(!no.pheno)   columnNames <- c(columnNames, "Pheno")
+  colnames(peddata) <- c(columnNames, SNPcolnames)
+
+  if(no.pheno) peddata <- cbind(peddata, Pheno=runif(nrow(peddata)))                                                # If there is no phenotype, create a random one
+  if(no.sex) peddata <- cbind(peddata, Sex=rep(1, nrow(peddata)))                                                   # If there is no sex, then everyone is a male
+
   peddata[peddata[,"Sex"] == 1, "Sex"] <- "m"; peddata[peddata[,"Sex"] == 2, "Sex"] <- "f"                          # R/qtl uses m and f, for males and females
-  
   genotypes <- matrix(NA, length(mapdata[,"ID"]), nrow(peddata))                                                    # Empty genotype matrix
   rownames(genotypes) <- mapdata[,"ID"]
   for(snp in mapdata[,"ID"]){
@@ -48,6 +58,14 @@ PLINKtoCSVR <- function(ped = "test.ped", map = "test.map", out = "cross.csvr", 
 
 library(qtl)
 
-cross <- PLINKtoCSVR()                                                                                              # Test the conversion from PLINK to R/qtl
+cross <- PLINKtoCSVR("test_complete.ped")                                                                           # Test the conversion from PLINK to R/qtl
+cross <- jittermap(cross)
+plot(scanone(cross))
+
+cross <- PLINKtoCSVR("test_no-pheno.ped", no.pheno=TRUE)                                                            # Test the conversion from PLINK to R/qtl, no phenotype
+cross <- jittermap(cross)
+plot(scanone(cross))
+
+cross <- PLINKtoCSVR("test_minimal.ped", no.fid = TRUE, no.parents = TRUE, no.sex = TRUE, no.pheno = TRUE)          # Test the conversion from PLINK to R/qtl, only IID column
 cross <- jittermap(cross)
 plot(scanone(cross))
