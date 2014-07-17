@@ -59,13 +59,10 @@ PLINKtoCSVR <- function(ped = "test_complete.ped", map = "test.map", out = "cros
 library(qtl)
 
 cross <- PLINKtoCSVR("test_complete.ped")                                                                           # Test the conversion from PLINK to R/qtl
-cross <- jittermap(cross)
 plot(scanone(cross))
 
 cross <- PLINKtoCSVR("test_no-pheno.ped", no.pheno=TRUE)                                                            # Test the conversion from PLINK to R/qtl, no phenotype
-cross <- jittermap(cross)
 plot(scanone(cross))
 
 cross <- PLINKtoCSVR("test_minimal.ped", no.fid = TRUE, no.parents = TRUE, no.sex = TRUE, no.pheno = TRUE)          # Test the conversion from PLINK to R/qtl, only IID column
-cross <- jittermap(cross)
 plot(scanone(cross))
