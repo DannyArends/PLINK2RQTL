@@ -16,7 +16,7 @@ PLINKtoCSVR <- function(ped = "test_complete.ped", map = "test.map", out = "cros
 
   SNPcolnames <- paste0(unlist(lapply(mapdata[,"ID"],rep,2)), c(".A",".B"))                                         # Create column names for the SNPs
 
-  peddata <-scan(ped, what=character(), na.strings=c("-9"))                                                         # Read the PED data
+  peddata <- scan(ped, what=character(), na.strings=c("-9"))                                                        # Read the PED data, using the much faster scan function
   columnNames <- NULL
   columnNames <- c(columnNames, "IID")
   if(!no.fid)     columnNames <- c(columnNames, "FID")
